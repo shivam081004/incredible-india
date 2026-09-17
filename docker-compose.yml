@@ -1,0 +1,43 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mongosh --quiet --eval "db.adminCommand({ ping: 1 }).ok" | grep 1',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      PORT: 5000
+      CLIENT_ORIGIN: http://localhost:5173,http://127.0.0.1:5173
+      MONGODB_URI: mongodb://mongo:27017/routefinder
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  client:
+    build: ./client
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data:

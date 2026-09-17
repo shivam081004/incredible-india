@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install all dependencies",
+      "type": "shell",
+      "command": "npm.cmd run install:all",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run server (dev)",
+      "type": "shell",
+      "command": "npm.cmd run dev --prefix server",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Run client (dev)",
+      "type": "shell",
+      "command": "npm.cmd run dev --prefix client",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Run full app (server + client)",
+      "dependsOn": ["Run server (dev)", "Run client (dev)"],
+      "problemMatcher": []
+    }
+  ]
+}
