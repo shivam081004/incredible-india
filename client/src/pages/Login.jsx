@@ -1,137 +1,160 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Login3DScene from "../components/Login3DScene.jsx";
-import { useAuth } from "../context/AuthContext.jsx";
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { CustomCursor } from '../components/core/CustomCursor';
 
-export default function Login() {
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
+
     try {
       await login(email, password);
-      navigate("/dashboard");
+      navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.error || "Could not log in");
+      setError(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const handleGoogleLogin = () => {
+    alert('Google OAuth: Configure in settings');
+  };
 
   return (
-    <div className="auth-shell grid min-h-screen md:grid-cols-2">
-      <div className="relative hidden flex-col justify-between bg-gradient-to-br from-navy via-navy-dark to-emerald p-10 text-paper md:flex lg:p-14">
-        <div className="relative z-10">
-          <span className="font-display font-bold text-xl flex items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 18 C 8 6, 16 22, 20 6" stroke="#F2A03D" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-              <circle cx="4" cy="18" r="2" fill="#F7F6F2" />
-              <circle cx="20" cy="6" r="2" fill="#F7F6F2" />
-            </svg>
-            RouteFinder
-          </span>
-          <div>
-            <h1 className="font-display text-3xl font-bold mt-8 max-w-sm leading-tight">
-              Every good trip starts with a clear route.
-            </h1>
-            <p className="text-white/70 mt-4 max-w-xs text-sm leading-relaxed">
-              Sign in to plan directions, see live ETAs, and keep a record of everywhere you've been.
-            </p>
-          </div>
-        </div>
-        <span className="relative z-10 text-xs text-white/40">
-          © {new Date().getFullYear()} RouteFinder
-        </span>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 right-10 w-64 h-64 rounded-full border border-white/5 animate-spin-slow" />
-          <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full border border-amber/10 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-1/3">
-          <Login3DScene />
-        </div>
-      </div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-white">
+      {/* CustomCursor */}
+      <CustomCursor />
 
-      <div className="flex items-center justify-center p-5 sm:p-8 bg-paper">
-        <div className="w-full max-w-sm">
-          <div className="flex items-center gap-3 mb-6 md:hidden">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 18 C 8 6, 16 22, 20 6" stroke="#F2A03D" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-              <circle cx="4" cy="18" r="2" fill="#1F3A5F" />
-              <circle cx="20" cy="6" r="2" fill="#1F3A5F" />
-            </svg>
-            <span className="font-display font-bold text-lg text-navy">RouteFinder</span>
-          </div>
-
-          <form onSubmit={handleSubmit} className="surface w-full max-w-sm rounded-2xl p-8">
-            <div>
-              <h2 className="font-display text-2xl font-bold text-ink">Welcome back</h2>
-              <p className="text-sm text-ink/60 mt-1">Log in to continue to your map.</p>
+      {/* Main Container */}
+      <div className="flex items-center justify-between w-full max-w-6xl px-8">
+        {/* Left side - Login Form */}
+        <motion.div
+          className="w-full max-w-md"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="bg-white">
+            {/* Heading */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+              <p className="text-gray-600">Sign in to your account</p>
             </div>
 
+            {/* Error message */}
             {error && (
-              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <motion.div
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
                 {error}
-              </p>
+              </motion.div>
             )}
 
-            <label className="flex flex-col gap-1.5 text-sm text-ink/70 font-medium mt-4">
-              Email
-              <input
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-              />
-            </label>
+            {/* Login form */}
+            <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+              {/* Email input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email or Username
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
 
-            <label className="flex flex-col gap-1.5 text-sm text-ink/70 font-medium mt-4">
-              Password
-              <input
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
-              />
-            </label>
+              {/* Password input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
 
+              {/* Sign in button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-sm mt-6"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex-1 h-px bg-gray-300"></div>
+              <span className="text-gray-500 text-xs font-medium">OR</span>
+              <div className="flex-1 h-px bg-gray-300"></div>
+            </div>
+
+            {/* Google sign in button */}
             <button
-              type="submit"
-              disabled={loading}
-              className="btn-secondary w-full mt-6 flex items-center justify-center gap-2"
+              onClick={handleGoogleLogin}
+              className="w-full border border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-3 text-sm"
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Logging in…
-                </>
-              ) : (
-                "Log in"
-              )}
+              {/* Google Logo */}
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Sign in with Google
             </button>
 
-            <p className="text-sm text-ink/60 text-center mt-4">
-              New here?{" "}
-              <Link to="/signup" className="text-navy font-semibold hover:underline">
-                Create an account
+            {/* Sign up link */}
+            <p className="text-center text-gray-600 mt-8 text-sm">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-blue-600 font-semibold hover:text-blue-700">
+                Sign up
               </Link>
             </p>
-          </form>
-        </div>
+          </div>
+        </motion.div>
+
+        {/* Right side - Video */}
+        <motion.div
+          className="hidden lg:block w-96 h-96 rounded-2xl shadow-2xl overflow-hidden ml-16"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <video
+            src="/images/travel-video-10sec.mp4"
+            autoPlay
+            muted
+            loop
+            className="w-full h-full object-cover"
+          />
+        </motion.div>
       </div>
     </div>
   );
-}
+};
+
+export default Login;

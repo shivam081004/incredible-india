@@ -1,31 +1,31 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import NavBar from "../components/NavBar.jsx";
-import TripCard from "../components/TripCard.jsx";
+import { CustomCursor } from "../components/core/CustomCursor";
 import api from "../services/api.js";
 
 export default function Trips() {
+  const navigate = useNavigate();
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  async function loadTrips() {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    fetchTrips();
+  }, []);
+
+  async function fetchTrips() {
     try {
       const { data } = await api.get("/trips");
-      setTrips(data);
+      setTrips(data || []);
     } catch (err) {
-      setError(err.response?.data?.error || "Could not load your trips.");
+      setError("Could not load your trips");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    loadTrips();
-  }, []);
 
   async function handleDelete(trip) {
     if (!window.confirm("Delete this saved trip?")) return;
@@ -39,100 +39,122 @@ export default function Trips() {
     }
   }
 
-  async function handleToggleFavorite(trip) {
-    try {
-      const { data } = await api.patch(`/trips/${trip._id}/favorite`);
-      setTrips((prev) => prev.map((t) => (t._id === data._id ? data : t)));
-    } catch {
-      setError("Could not update that favorite.");
-    }
-  }
-
   function handleOpen(trip) {
     navigate("/dashboard", { state: { trip } });
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <CustomCursor />
       <NavBar />
-      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div className="fade-in-up">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-dark">
-              Your route history
-            </p>
-            <h1 className="font-display text-3xl font-bold text-navy">
-              My trips
-            </h1>
+
+      {/* Header */}
+      <motion.div
+        className="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-12 px-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <h1 className="text-4xl font-bold mb-2">🎫 My Trips</h1>
+        <p className="text-lg">View and manage your route history</p>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-8 py-16">
+        <motion.div
+          className="flex justify-between items-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-orange-400 mb-2">Your Route History</p>
+            <h2 className="text-3xl font-bold text-white">My Trips</h2>
           </div>
           <button
-            type="button"
             onClick={() => navigate("/dashboard")}
-            className="rounded-full bg-gradient-to-r from-navy to-emerald px-5 py-2.5 text-sm font-semibold text-paper transition-all hover:shadow-lg hover:scale-105"
+            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition"
           >
-            <i className="fa-solid fa-plus mr-2"></i>
-            Plan a new route
+            ➕ Plan a New Route
           </button>
-        </div>
+        </motion.div>
 
+        {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center py-20">
-            <svg className="animate-spin h-8 w-8 text-amber" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+            <p className="text-gray-300 mt-4">Loading your trips...</p>
           </div>
         )}
 
+        {/* Error State */}
         {error && (
-          <div
-            role="alert"
-            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          <motion.div
+            className="bg-red-500/20 border border-red-500 text-red-300 px-6 py-4 rounded-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
           >
-            <span>{error}</span>
-            <button
-              type="button"
-              onClick={loadTrips}
-              className="font-semibold underline"
-            >
-              Try again
-            </button>
-          </div>
+            {error}
+          </motion.div>
         )}
 
+        {/* Empty State */}
         {!loading && trips.length === 0 && (
-          <div className="surface rounded-2xl p-12 text-center">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber/10">
-              <i className="fa-solid fa-map-location-dot text-3xl text-amber"></i>
-            </div>
-            <p className="font-display text-xl font-bold text-navy">
-              No saved trips yet
-            </p>
-            <p className="mx-auto mt-2 max-w-md text-sm text-ink/60 leading-relaxed">
-              Plan a route on the map and save it here for quick access later.
-            </p>
+          <motion.div
+            className="bg-white/10 backdrop-blur border border-white/20 rounded-lg p-16 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p className="text-3xl mb-4">🛤️</p>
+            <p className="text-gray-300 text-lg mb-6">No trips yet. Start planning your next adventure!</p>
             <button
-              type="button"
               onClick={() => navigate("/dashboard")}
-              className="mt-6 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-paper transition-all hover:bg-navy-dark hover:shadow-lg"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition"
             >
-              Plan your first route
+              Plan Your First Trip
             </button>
-          </div>
+          </motion.div>
         )}
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {trips.map((trip, i) => (
-            <div key={trip._id} className="fade-in-up" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
-              <TripCard
-                trip={trip}
-                onDelete={handleDelete}
-                onToggleFavorite={handleToggleFavorite}
-                onOpen={handleOpen}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Trips Grid */}
+        {!loading && trips.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {trips.map((trip, i) => (
+              <motion.div
+                key={trip._id}
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition"
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div className="h-40 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">
+                    {trip.origin?.address || "Unknown"} → {trip.destination?.address || "Unknown"}
+                  </h3>
+                  <div className="space-y-2 mb-4 text-sm text-gray-600">
+                    <p>🚗 Mode: <span className="font-semibold capitalize">{trip.travelMode || "Travel"}</span></p>
+                    <p>⏱️ Duration: <span className="font-semibold">{trip.durationText || "N/A"}</span></p>
+                    <p>📏 Distance: <span className="font-semibold">{trip.distanceText || "N/A"}</span></p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleOpen(trip)}
+                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition font-semibold"
+                    >
+                      View Details
+                    </button>
+                    <button
+                      onClick={() => handleDelete(trip)}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition font-semibold"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

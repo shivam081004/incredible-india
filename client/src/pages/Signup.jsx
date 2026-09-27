@@ -1,141 +1,226 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Signup3DScene from "../components/Signup3DScene.jsx";
-import { useAuth } from "../context/AuthContext.jsx";
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { CustomCursor } from '../components/core/CustomCursor';
 
-export default function Signup() {
-  const { signup } = useAuth();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+const Signup = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  const validatePassword = (pwd) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumbers = /\d/.test(pwd);
+    const hasSpecialChar = /[!@#$%^&*]/.test(pwd);
+
+    return (
+      pwd.length >= minLength &&
+      hasUpperCase &&
+      hasLowerCase &&
+      hasNumbers &&
+      hasSpecialChar
+    );
+  };
+
+  const passwordStrength = {
+    minLength: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    numbers: /\d/.test(password),
+    specialChar: /[!@#$%^&*]/.test(password),
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
+
+    if (!fullName.trim()) {
+      setError('Full name is required');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError('Password must be at least 8 characters with uppercase, lowercase, numbers, and special characters');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
+
     try {
-      await signup(name, email, password);
-      navigate("/dashboard");
+      await register(email, password, fullName);
+      navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.error || "Could not create account");
+      setError(err.response?.data?.error || 'Signup failed');
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const isPasswordValid = Object.values(passwordStrength).every(Boolean);
 
   return (
-    <div className="auth-shell grid min-h-screen md:grid-cols-2">
-      <div className="relative hidden flex-col justify-between bg-gradient-to-br from-navy via-navy-dark to-emerald p-10 text-paper md:flex lg:p-14">
-        <div className="relative z-10">
-          <span className="font-display font-bold text-xl flex items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 18 C 8 6, 16 22, 20 6" stroke="#F2A03D" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-              <circle cx="4" cy="18" r="2" fill="#F7F6F2" />
-              <circle cx="20" cy="6" r="2" fill="#F7F6F2" />
-            </svg>
-            RouteFinder
-          </span>
-          <div>
-            <h1 className="font-display text-3xl font-bold mt-8 max-w-sm leading-tight">
-              Your account, your routes, always saved.
-            </h1>
-            <p className="text-white/70 mt-4 max-w-xs text-sm leading-relaxed">
-              Create a free account to search directions and build a private history of your trips.
-            </p>
-          </div>
-        </div>
-        <span className="relative z-10 text-xs text-white/40">
-          © {new Date().getFullYear()} RouteFinder
-        </span>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 right-10 w-64 h-64 rounded-full border border-white/5 animate-spin-slow" />
-          <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full border border-amber/10 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-1/3">
-          <Signup3DScene />
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center px-4">
+      <CustomCursor />
 
-      <div className="flex items-center justify-center p-5 sm:p-8 bg-paper">
-        <div className="w-full max-w-sm">
-          <div className="flex items-center gap-3 mb-6 md:hidden">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 18 C 8 6, 16 22, 20 6" stroke="#F2A03D" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-              <circle cx="4" cy="18" r="2" fill="#1F3A5F" />
-              <circle cx="20" cy="6" r="2" fill="#1F3A5F" />
-            </svg>
-            <span className="font-display font-bold text-lg text-navy">RouteFinder</span>
+      <motion.div
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Card Header */}
+        <div className="bg-white rounded-t-2xl shadow-2xl p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+            <p className="text-gray-600">Join the Incredible India community</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="surface w-full max-w-sm rounded-2xl p-8">
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            {/* Full Name */}
             <div>
-              <h2 className="font-display text-2xl font-bold text-ink">Create your account</h2>
-              <p className="text-sm text-ink/60 mt-1">Takes less than a minute.</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="Your full name"
+                required
+              />
             </div>
 
-            {error && (
-              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
-            )}
-
-            <label className="flex flex-col gap-1.5 text-sm text-ink/70 font-medium mt-4">
-              Name
-              <input
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="input-field"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1.5 text-sm text-ink/70 font-medium mt-4">
-              Email
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
-                autoComplete="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="your@email.com"
+                required
               />
-            </label>
+            </div>
 
-            <label className="flex flex-col gap-1.5 text-sm text-ink/70 font-medium mt-4">
-              Password
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
               <input
                 type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="••••••••"
+                required
               />
-              <span className="text-xs text-ink/40 mt-1">At least 8 characters.</span>
-            </label>
 
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="mt-3 space-y-1 text-xs">
+                  <p className={`flex items-center gap-2 ${passwordStrength.minLength ? 'text-green-600' : 'text-gray-400'}`}>
+                    {passwordStrength.minLength ? '✓' : '○'} At least 8 characters
+                  </p>
+                  <p className={`flex items-center gap-2 ${passwordStrength.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
+                    {passwordStrength.uppercase ? '✓' : '○'} Uppercase letter
+                  </p>
+                  <p className={`flex items-center gap-2 ${passwordStrength.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
+                    {passwordStrength.lowercase ? '✓' : '○'} Lowercase letter
+                  </p>
+                  <p className={`flex items-center gap-2 ${passwordStrength.numbers ? 'text-green-600' : 'text-gray-400'}`}>
+                    {passwordStrength.numbers ? '✓' : '○'} Number
+                  </p>
+                  <p className={`flex items-center gap-2 ${passwordStrength.specialChar ? 'text-green-600' : 'text-gray-400'}`}>
+                    {passwordStrength.specialChar ? '✓' : '○'} Special character (!@#$%^&*)
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="••••••••"
+                required
+              />
+              {confirmPassword && password !== confirmPassword && (
+                <p className="text-red-600 text-xs mt-1">Passwords do not match</p>
+              )}
+            </div>
+
+            {/* Sign Up Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="btn-secondary w-full mt-6 flex items-center justify-center gap-2"
+              disabled={loading || !isPasswordValid}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 rounded-lg transition disabled:opacity-50 text-sm mt-6"
             >
-              {loading ? "Creating account…" : "Create account"}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
-
-            <p className="text-sm text-ink/60 text-center mt-4">
-              Already have an account?{" "}
-              <Link to="/login" className="text-navy font-semibold hover:underline">
-                Log in
-              </Link>
-            </p>
           </form>
+
+          {/* Login Link */}
+          <p className="text-center text-gray-600 text-sm">
+            Already have an account?{' '}
+            <Link to="/login" className="text-blue-600 font-medium hover:text-blue-700">
+              Sign in
+            </Link>
+          </p>
         </div>
-      </div>
+
+        {/* Card Footer - Info Box */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-b-2xl shadow-2xl p-6">
+          <div className="space-y-2 text-sm">
+            <p className="font-semibold">🎉 Join Incredible India!</p>
+            <p>Unlock access to:</p>
+            <ul className="list-disc list-inside space-y-1 text-blue-100">
+              <li>Explore millions of destinations</li>
+              <li>Plan your perfect route</li>
+              <li>Find best hotels & places</li>
+              <li>AI-powered travel guides</li>
+              <li>Save your favorite trips</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
-}
+};
+
+export default Signup;

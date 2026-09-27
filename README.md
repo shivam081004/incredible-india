@@ -1,70 +1,200 @@
-# RouteFinder
+# Incredible India - Travel Exploration Platform
 
-A full-stack, login-protected route-finding app: React + Leaflet/OpenStreetMap on the front end, Express + MongoDB + JWT auth on the back end. Uses **OSRM** for free routing and **Nominatim** for geocoding — no API keys required!
+![Incredible India](https://img.shields.io/badge/Status-Active%20Development-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Node](https://img.shields.io/badge/Node-18%2B-brightgreen)
 
-## What's included
+A full-stack MERN (MongoDB/Supabase, Express, React, Node.js) application for exploring India's tourist destinations, planning routes, discovering hotels, and generating AI-powered travel guides.
 
-- **`server/`** — Express API: signup/login/refresh/logout (JWT, bcrypt), a `/api/routes` endpoint that proxies OSRM routing, a `/api/routes/geocode` endpoint using Nominatim, and full CRUD on saved trips (MongoDB via Mongoose).
-- **`client/`** — React (Vite) app with Leaflet maps, 3D globe visualization (Three.js @react-three/fiber), auth pages, a protected map dashboard with autocomplete search, and a "My trips" page.
-- **`docker-compose.yml`** — spins up MongoDB, the API, and the built frontend together.
+## 🚀 Features
 
-## 1. Get a MongoDB connection string (optional)
+- **User Authentication** - JWT-based login with Google OAuth integration
+- **Map Discovery** - Interactive map with searchable landmarks and destinations
+- **Route Finder** - Multi-transport route planning (Train, Bus, Flight, Car, Auto)
+- **Hotels & Places** - Browse accommodations and free cultural attractions
+- **AI Travel Guide** - Ollama-powered AI guide for destinations
+- **Trip Management** - Save and manage travel routes
+- **Real-time Validation** - Live health checks and monitoring dashboard
+- **Responsive Design** - Mobile-first with Tailwind CSS
+- **Custom Cursor** - Branded cursor animations using Framer Motion
 
-You can use a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster, or install MongoDB locally and use `mongodb://localhost:27017/routefinder`.
+## 📋 Tech Stack
 
-## 2. Open in VS Code and run locally
+### Frontend
+- **React 18** with Vite bundler
+- **Framer Motion** - Advanced animations
+- **Tailwind CSS** - Utility-first styling
+- **React Router** - Client-side routing
+- **Lucide React** - Icon library
 
-1. Open the `routefinder/` folder in VS Code.
-2. Install dependencies:
-   ```bash
-   npm run install:all
-   ```
-3. Set up your env files:
-   ```bash
-   cp server/.env.example server/.env
-   cp client/.env.example client/.env
-   ```
-   Edit `server/.env` with your MongoDB URI and JWT secrets.
-4. Start both servers:
-   ```bash
-   npm run dev:windows
-   ```
-   This runs the API on `http://localhost:5000` and the client on `http://localhost:5173`.
+### Backend
+- **Node.js + Express** - REST API server
+- **Supabase/PostgreSQL** - Database with Row-Level Security
+- **JWT Authentication** - Secure session management
+- **Ollama** - Local LLM for AI guides
 
-## 3. Run with Docker Compose
+### DevOps & Tools
+- **Git** - Version control
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - CSS framework
 
-```powershell
-docker compose up --build
+## 🛠️ Installation
+
+### Prerequisites
+- Node.js 18+
+- npm or pnpm
+- Supabase account
+- Ollama (for AI features)
+
+### Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/incredible-india.git
+cd incredible-india
 ```
 
-## 4. What to try
+2. **Install dependencies**
+```bash
+# Client
+cd client
+npm install
 
-1. Go to `http://localhost:5173` → redirected to `/login`.
-2. Create an account.
-3. On the dashboard, type an origin and destination with autocomplete suggestions.
-4. Hit **Find route** — the route draws on the Leaflet map with turn-by-turn steps.
-5. Click **Explore 3D Globe** to see a rotating 3D globe visualization of the route.
-6. Click **Save trip**, then check **My trips** to see it listed with beautiful place images.
-7. Favorite or delete saved trips.
+# Server (if separate)
+cd ../server
+npm install
+```
 
-## Architecture
+3. **Configure environment variables**
+```bash
+cp .env.example .env.local
+# Edit .env.local with your credentials
+```
 
-- **Maps**: Leaflet + OpenStreetMap tiles (free, no API key)
-- **Routing**: OSRM (Open Source Routing Machine) via `router.project-osrm.org`
-- **Geocoding**: Nominatim (OpenStreetMap) via `nominatim.openstreetmap.org`
-- **3D**: Three.js with @react-three/fiber and @react-three/drei
-- **Auth**: JWT with access + refresh tokens (httpOnly cookies)
-- **Database**: MongoDB with Mongoose
+4. **Start development server**
+```bash
+# Client (from client directory)
+npm run dev
 
-## Features
+# Server (from server directory, if separate)
+npm start
+```
 
-- 🗺️ Free map tiles from OpenStreetMap
-- 🧭 Route planning via OSRM (driving, walking, cycling, transit)
-- 🔍 Autocomplete search using Nominatim geocoding
-- 🌐 3D rotating globe visualization
-- 📸 Trip cards with beautiful place images
-- ✨ Glassmorphism, gradients, and smooth animations
-- 🔐 JWT authentication with refresh token rotation
-- 💾 Save, favorite, and delete trips
-- 📱 Responsive design for all screen sizes
-- 🐳 Docker Compose deployment
+5. **Access the application**
+```
+http://localhost:5173
+```
+
+## 📦 Project Structure
+
+```
+incredible-india/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── pages/         # Page components
+│   │   ├── components/    # Reusable components
+│   │   ├── utils/         # Utility functions
+│   │   ├── services/      # API services
+│   │   ├── contexts/      # React contexts
+│   │   └── App.jsx
+│   ├── public/            # Static assets
+│   └── package.json
+├── server/                # Express backend
+│   ├── routes/            # API routes
+│   ├── middleware/        # Express middleware
+│   ├── models/            # Database models
+│   └── package.json
+├── .gitignore
+├── README.md              # This file
+├── ARCHITECTURE.md        # System design
+├── PACKAGE.md             # Module documentation
+└── SECURITY.md            # Security guidelines
+```
+
+## 🔐 Security
+
+This project follows security best practices:
+
+- **No secrets in version control** - See `.gitignore` and `SECURITY.md`
+- **Environment variables** - Sensitive data via `.env.local`
+- **Row-Level Security** - PostgreSQL RLS policies in Supabase
+- **Input validation** - Zod schemas at API boundaries
+- **HTTPS only** - Secure communication
+- **CORS restricted** - Configuration in `SECURITY.md`
+
+**⚠️ IMPORTANT**: See `SECURITY.md` before committing code with sensitive data.
+
+## 📖 Documentation
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design and data flow
+- **[PACKAGE.md](./PACKAGE.md)** - Module and package descriptions
+- **[SECURITY.md](./SECURITY.md)** - Security guidelines and best practices
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm test -- --coverage
+
+# Run tests in watch mode
+npm test -- --watch
+```
+
+## 📝 Environment Variables
+
+Create `.env.local` in both `client/` and `server/` directories:
+
+```bash
+# .env.local
+VITE_API_URL=http://localhost:3000/api
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
+OLLAMA_API_URL=http://localhost:11434
+GOOGLE_CLIENT_ID=your_google_client_id
+JWT_SECRET=your_jwt_secret_key
+```
+
+## 🚀 Deployment
+
+1. **Build for production**
+```bash
+npm run build
+```
+
+2. **Start production server**
+```bash
+npm start
+```
+
+3. **Environment setup** - Configure production `.env` variables on your host
+
+## 🤝 Contributing
+
+1. Create a feature branch: `git checkout -b feature/my-feature`
+2. Commit changes: `git commit -m "feat: add my feature"`
+3. Push to remote: `git push origin feature/my-feature`
+4. Open a pull request
+
+See [SECURITY.md](./SECURITY.md) before submitting code.
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 👨‍💻 Author
+
+Your Name / Your Organization
+
+## 📞 Support
+
+For issues and feature requests, open an issue on GitHub.
+
+## 🙏 Acknowledgments
+
+- Supabase for PostgreSQL hosting
+- Ollama for local LLM inference
+- Framer Motion for animations
+- Tailwind CSS for styling

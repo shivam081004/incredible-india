@@ -1,7 +1,120 @@
-node_modules/
-dist/
-build/
+# Environment variables - NEVER COMMIT
 .env
 .env.local
-*.log
+.env.*.local
+.env.production
+.env.development
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+/dist
+/build
+/.next
+/out
+*.tsbuildinfo
+
+# Testing
+/coverage
+.nyc_output
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+*.sublime-workspace
+*.sublime-project
+.env.*.swp
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Keys and secrets - CRITICAL
+*.pem
+*.key
+*.pub
+private_key*
+public_key*
+*.jks
+*.p12
+*.pfx
+
+# API Keys and tokens (by pattern)
+*api_key*
+*apikey*
+*api-key*
+*secret*
+*SECRET*
+*token*
+*TOKEN*
+*password*
+*PASSWORD*
+*credentials*
+*CREDENTIALS*
+
+# Database credentials
+*database.url*
+*db.url*
+*db_url*
+*DATABASE_URL*
+*DB_URL*
+
+# OAuth and third-party
+*google_client*
+*github_token*
+*slack_token*
+*stripe_key*
+*aws_key*
+*azure_key*
+*oauth*
+
+# Supabase specific
+.supabase/
+supabase/.env.local
+supabase/migrations/*.sql
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Distribution files (if building for production)
+dist/
+*.tgz
+*.tar.gz
